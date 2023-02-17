@@ -92,30 +92,47 @@ public class Calculadora {
         boolean resp=true;
         String corregido="";
 
-        if(operacion.isEmpty()){
-            operacion="0";
-        }
-        if(tieneSoloElementosMatematicos() && estanBalanceadosParentesis()){ //hay que checar que no haya operaciones seguidas
-            int i=0;
-            char c = operacion.charAt(i),ant, ult=operacion.charAt(operacion.length()-1);
-            boolean bandera=true;
-            
-            if((esNumero(c) || c=='-' || c=='(') && (esNumero(ult) || ult==')')){//que inicie bien y que su ultimo termino sea correcto
-                corregido+=c;
-                i++;
-                ant=c;
-                try{
-                    c=operacion.charAt(i);
-                }catch(Exception e){
-                    bandera=false;
-                }
-                while(i<operacion.length() && bandera){
-                    if(esSimbolo(c)){
-                        if(c=='('||esNumero(ant) ||ant==')'|| (c=='-' && esSimbolo(ant))){
-                            if((c=='(') && (!esSimbolo(ant) || ant=='.')){
-                                bandera=false;
-                                resp=false;
+        if(!operacion.isEmpty()){   
+            if(tieneSoloElementosMatematicos() && estanBalanceadosParentesis()){ //hay que checar que no haya operaciones seguidas
+                int i=0;
+                char c = operacion.charAt(i),ant, ult=operacion.charAt(operacion.length()-1);
+                boolean bandera=true;
+
+                if((esNumero(c) || c=='-' || c=='(') && (esNumero(ult) || ult==')')){//que inicie bien y que su ultimo termino sea correcto
+                    corregido+=c;
+                    i++;
+                    ant=c;
+                    try{
+                        c=operacion.charAt(i);
+                    }catch(Exception e){
+                        bandera=false;
+                    }
+                    while(i<operacion.length() && bandera){
+                        if(esSimbolo(c)){
+                            if(c=='('||esNumero(ant) ||ant==')'|| (c=='-' && esSimbolo(ant))){
+                                if((c=='(') && (!esSimbolo(ant) || ant=='.')){
+                                    bandera=false;
+                                    resp=false;
+                                }
+                                corregido+=c;
+                                i++;
+                                ant=c;
+                                try{
+                                    c=operacion.charAt(i);
+                                }catch(Exception e){
+                                    bandera=false;
+                                }
+                                if(ant==')'&& esNumero(c)){
+                                    bandera=false;
+                                    resp=false;
+                                }
                             }
+                            else{
+                                resp=false;
+                                bandera=false;
+                            }
+                        }
+                        else{ //es un numero
                             corregido+=c;
                             i++;
                             ant=c;
@@ -124,37 +141,22 @@ public class Calculadora {
                             }catch(Exception e){
                                 bandera=false;
                             }
-                            if(ant==')'&& esNumero(c)){
-                                bandera=false;
-                                resp=false;
-                            }
-                        }
-                        else{
-                            resp=false;
-                            bandera=false;
                         }
                     }
-                    else{ //es un numero
-                        corregido+=c;
-                        i++;
-                        ant=c;
-                        try{
-                            c=operacion.charAt(i);
-                        }catch(Exception e){
-                            bandera=false;
-                        }
-                    }
+
                 }
-                
+                else{
+                    resp=false;
+                }
             }
             else{
                 resp=false;
             }
+            if(resp==false){
+                corregido=null;
+            }
         }
         else{
-            resp=false;
-        }
-        if(resp==false){
             corregido=null;
         }
         return corregido;
@@ -162,13 +164,14 @@ public class Calculadora {
     
     private static boolean comparaOperadores(String op1, String op2){//c1<=c2 en prioridad
         boolean resp=false;
+        String operadores="^*/-+";
         
         switch(op1){
             case "+": 
-                resp=false; 
+                resp=(operadores.contains(op2)); 
                 break;
             case "-": 
-                resp=false; 
+                resp=(operadores.contains(op2)); 
                 break;
             case "*":
                 resp=(op2.equals("^")||op2.equals("*")||op2.equals("/")); 
@@ -180,7 +183,6 @@ public class Calculadora {
                 resp=(op2.equals("^"));
                 break;
         }
-        
         return resp;
     }
     
@@ -198,9 +200,11 @@ public class Calculadora {
             if(c.equals("(")){
                 indice++;
             }
-            ant=c;
-            c=operacion.charAt(i)+"";
             while(i<operacion.length()){
+                if(i<operacion.length()){
+                    ant=c;
+                    c=operacion.charAt(i)+"";
+                }
                 if(simbolosIndex.contains(c) || (c.equals("-")&& (esNumero(ant.charAt(0)) || ant.equals(")")))){
                     indice++;
                 }
@@ -220,10 +224,6 @@ public class Calculadora {
                     indice++;
                 }
                 i++;
-                if(i<operacion.length()){
-                    ant=c;
-                    c=operacion.charAt(i)+"";
-                }
             }
             
         }
@@ -277,8 +277,9 @@ public class Calculadora {
         return postfija;
     }
     
-    public double evaluaOperacion() {
+    public String evaluaOperacion() {
         double result=0;
+        String respuesta="";
         ArrayList<String> op = convierteInfijaAPostfija();
         if(op!=null){
             int indice=0;
@@ -318,45 +319,56 @@ public class Calculadora {
                 }
                 indice++;
             }
+            respuesta=result+"";
         }
         else{
-            
+            respuesta = null;   //en la calculadora poner SYNTAX ERROR
         }
-        return result;
+        return respuesta;
     }
     
     public static void main(String[] args) {
         Calculadora c0 = new Calculadora("-2+(3.2^(8/-3)*(567.9-4)+-2)");
+        System.out.println("\nPrueba 1");
         System.out.println(c0.noTieneErrores());
         System.out.println(c0.divideOperacion());
         System.out.println(c0.convierteInfijaAPostfija());
-        System.out.println(c0.evaluaOperacion()); // segun photomath ≈21.3592 HAY ERROR!!!!
-//        
-//        Calculadora c1 = new Calculadora("-2+(3.(2^(8/-3)*(5)67.9)+-2)");
-//        System.out.println(c1.noTieneErrores());
-//        System.out.println(c1.divideOperacion());
-//        
-//        Calculadora c2 = new Calculadora("-2+(3.2^(8/-3)*(5)67.9+-2)");
-//        System.out.println(c2.noTieneErrores());
-//        System.out.println(c2.divideOperacion());
-//        
-        Calculadora c4 = new Calculadora("1.2+34*(-5+6.7)^-8/-9"); //a+b*(c+d)^e/k 
+        System.out.println(c0.evaluaOperacion()); // segun photomath ≈21.3592 
+        
+        Calculadora c1 = new Calculadora("-2+(3.(2^(8/-3)*(5)67.9)+-2)");
+        System.out.println("\nPrueba 2");
+        System.out.println(c1.noTieneErrores());
+        System.out.println(c1.divideOperacion());
+        System.out.println(c1.convierteInfijaAPostfija());  
+        System.out.println(c1.evaluaOperacion()); // = null
+        
+        Calculadora c2 = new Calculadora("-2+(3.2^(8/-3)*(5)67.9+-2)");
+        System.out.println("\nPrueba 3");
+        System.out.println(c2.noTieneErrores());
+        System.out.println(c2.divideOperacion()); 
+        System.out.println(c2.convierteInfijaAPostfija());  
+        System.out.println(c2.evaluaOperacion()); // = null
+        
+        Calculadora c3 = new Calculadora("1.2+34*(-5+6.7)^-8/-9"); //a+b*(c+d)^e/k 
+        System.out.println("\nPrueba 4");
+        System.out.println(c3.noTieneErrores());
+        System.out.println(c3.divideOperacion());
+        System.out.println(c3.convierteInfijaAPostfija());  //ab cd+e^ *k/+
+        System.out.println(c3.evaluaOperacion()); // ≈1.14584 todo bien
+
+        Calculadora c4 = new Calculadora ("");
+        System.out.println("\nPrueba 5");
         System.out.println(c4.noTieneErrores());
         System.out.println(c4.divideOperacion());
-        System.out.println(c4.convierteInfijaAPostfija());  //ab cd+e^ *k/+
-        System.out.println(c4.evaluaOperacion()); // ≈1.14584 todo bien
-
-        Calculadora c5 = new Calculadora ("");
+        System.out.println(c4.convierteInfijaAPostfija());  
+        System.out.println(c4.evaluaOperacion()); // = null
+        
+        Calculadora c5 = new Calculadora ("5.7*10^-9");
+        System.out.println("\nPrueba 6");
         System.out.println(c5.noTieneErrores());
         System.out.println(c5.divideOperacion());
         System.out.println(c5.convierteInfijaAPostfija());  
-        System.out.println(c5.evaluaOperacion()); // =0 todo bien
-        
-        Calculadora c6 = new Calculadora ("5.7*10^-9");
-        System.out.println(c6.noTieneErrores());
-        System.out.println(c6.divideOperacion());
-        System.out.println(c6.convierteInfijaAPostfija());  
-        System.out.println(c6.evaluaOperacion()); // =0.0000000059
+        System.out.println(c5.evaluaOperacion()); // =0.0000000059
     }
 }
 
