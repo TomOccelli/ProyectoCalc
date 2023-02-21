@@ -11,13 +11,8 @@ import java.util.ArrayList;
  * @author fernandobarbaperez
  */
 public class Calculadora {
-    private String operacion;
     
-    public Calculadora(String ope){
-        this.operacion=ope;
-    }
-    
-    private boolean estanBalanceadosParentesis(){
+    private static boolean estanBalanceadosParentesis(String operacion){
         boolean resp = false, bandera=true;
         int i=0;
         PilaA pila = new PilaA();
@@ -72,7 +67,7 @@ public class Calculadora {
         return resp;
     }
     
-    private boolean tieneSoloElementosMatematicos(){
+    private static boolean tieneSoloElementosMatematicos(String operacion){
         boolean resp=true;
         int i=0;
         char ele;
@@ -88,12 +83,12 @@ public class Calculadora {
         return resp;
     }
     
-    public String noTieneErrores(){
+    public static String noTieneErrores(String operacion){
         boolean resp=true;
         String corregido="";
 
         if(!operacion.isEmpty()){   
-            if(tieneSoloElementosMatematicos() && estanBalanceadosParentesis()){ //hay que checar que no haya operaciones seguidas
+            if(tieneSoloElementosMatematicos(operacion) && estanBalanceadosParentesis(operacion)){ //hay que checar que no haya operaciones seguidas
                 int i=0;
                 char c = operacion.charAt(i),ant, ult=operacion.charAt(operacion.length()-1);
                 boolean bandera=true;
@@ -162,35 +157,11 @@ public class Calculadora {
         return corregido;
     }
     
-    private static boolean comparaOperadores(String op1, String op2){//c1<=c2 en prioridad
-        boolean resp=false;
-        String operadores="^*/-+";
-        
-        switch(op1){
-            case "+": 
-                resp=(operadores.contains(op2)); 
-                break;
-            case "-": 
-                resp=(operadores.contains(op2)); 
-                break;
-            case "*":
-                resp=(op2.equals("^")||op2.equals("*")||op2.equals("/")); 
-                break;
-            case "/":
-                resp=(op2.equals("^")||op2.equals("*")||op2.equals("/")); 
-                break;
-            case "^":
-                resp=(op2.equals("^"));
-                break;
-        }
-        return resp;
-    }
-    
-    public ArrayList<String> divideOperacion(){
+    public static ArrayList<String> divideOperacion(String operacion){
         
         ArrayList<String> arreglo = new ArrayList<>();
         
-        if(noTieneErrores()!=null && !operacion.equals("0")){ 
+        if(noTieneErrores(operacion)!=null && !operacion.equals("0")){ 
             int i=0,indice=0;
             String c=String.valueOf(operacion.charAt(i)), ant="";
             String simbolosIndex="+^()*/";
@@ -233,9 +204,35 @@ public class Calculadora {
         return arreglo;
     }
     
-    public ArrayList<String> convierteInfijaAPostfija(){
+    private static boolean comparaOperadores(String op1, String op2){//c1<=c2 en prioridad
+        boolean resp=false;
+        String operadores="^*/-+";
+        
+        switch(op1){
+            case "+": 
+                resp=(operadores.contains(op2)); 
+                break;
+            case "-": 
+                resp=(operadores.contains(op2)); 
+                break;
+            case "*":
+                resp=(op2.equals("^")||op2.equals("*")||op2.equals("/")); 
+                break;
+            case "/":
+                resp=(op2.equals("^")||op2.equals("*")||op2.equals("/")); 
+                break;
+            case "^":
+                resp=(op2.equals("^"));
+                break;
+        }
+        return resp;
+    }
+
+    public static ArrayList<String> convierteInfijaAPostfija(String operacion){
+        
         ArrayList<String> postfija = new ArrayList<>();
-        ArrayList<String> op = divideOperacion();
+        ArrayList<String> op = divideOperacion(operacion);
+        
         if(op!=null){
             int indice=0;
             String dato;
@@ -277,10 +274,10 @@ public class Calculadora {
         return postfija;
     }
     
-    public String evaluaOperacion() {
+    public static String evaluaOperacion(String operacion) {
         double result=0;
         String respuesta="";
-        ArrayList<String> op = convierteInfijaAPostfija();
+        ArrayList<String> op = convierteInfijaAPostfija(operacion);
         if(op!=null){
             int indice=0;
             String dato;
@@ -328,47 +325,48 @@ public class Calculadora {
     }
     
     public static void main(String[] args) {
-        Calculadora c0 = new Calculadora("-2+(3.2^(8/-3)*(567.9-4)+-2)");
+        
+        String s1="-2+(3.2^(8/-3)*(567.9-4)+-2)";
         System.out.println("\nPrueba 1");
-        System.out.println(c0.noTieneErrores());
-        System.out.println(c0.divideOperacion());
-        System.out.println(c0.convierteInfijaAPostfija());
-        System.out.println(c0.evaluaOperacion()); // segun photomath ≈21.3592 
+        System.out.println(noTieneErrores(s1));
+        System.out.println(divideOperacion(s1));
+        System.out.println(convierteInfijaAPostfija(s1));
+        System.out.println(evaluaOperacion(s1)); // segun photomath ≈21.3592 
         
-        Calculadora c1 = new Calculadora("-2+(3.(2^(8/-3)*(5)67.9)+-2)");
+        String s2="-2+(3.(2^(8/-3)*(5)67.9)+-2)";        
         System.out.println("\nPrueba 2");
-        System.out.println(c1.noTieneErrores());
-        System.out.println(c1.divideOperacion());
-        System.out.println(c1.convierteInfijaAPostfija());  
-        System.out.println(c1.evaluaOperacion()); // = null
+        System.out.println(noTieneErrores(s2));
+        System.out.println(divideOperacion(s2));
+        System.out.println(convierteInfijaAPostfija(s2));  
+        System.out.println(evaluaOperacion(s2)); // = null
         
-        Calculadora c2 = new Calculadora("-2+(3.2^(8/-3)*(5)67.9+-2)");
+        String s3="-2+(3.2^(8/-3)*(5)67.9+-2)";
         System.out.println("\nPrueba 3");
-        System.out.println(c2.noTieneErrores());
-        System.out.println(c2.divideOperacion()); 
-        System.out.println(c2.convierteInfijaAPostfija());  
-        System.out.println(c2.evaluaOperacion()); // = null
+        System.out.println(noTieneErrores(s3));
+        System.out.println(divideOperacion(s3)); 
+        System.out.println(convierteInfijaAPostfija(s3));  
+        System.out.println(evaluaOperacion(s3)); // = null
         
-        Calculadora c3 = new Calculadora("1.2+34*(-5+6.7)^-8/-9"); //a+b*(c+d)^e/k 
+        String s4="1.2+34*(-5+6.7)^-8/-9"; //a+b*(c+d)^e/k
         System.out.println("\nPrueba 4");
-        System.out.println(c3.noTieneErrores());
-        System.out.println(c3.divideOperacion());
-        System.out.println(c3.convierteInfijaAPostfija());  //ab cd+e^ *k/+
-        System.out.println(c3.evaluaOperacion()); // ≈1.14584 todo bien
+        System.out.println(noTieneErrores(s4));
+        System.out.println(divideOperacion(s4));
+        System.out.println(convierteInfijaAPostfija(s4));  //ab cd+e^ *k/+
+        System.out.println(evaluaOperacion(s4)); // ≈1.14584 todo bien
 
-        Calculadora c4 = new Calculadora ("");
+        String s5="";
         System.out.println("\nPrueba 5");
-        System.out.println(c4.noTieneErrores());
-        System.out.println(c4.divideOperacion());
-        System.out.println(c4.convierteInfijaAPostfija());  
-        System.out.println(c4.evaluaOperacion()); // = null
+        System.out.println(noTieneErrores(s5));
+        System.out.println(divideOperacion(s5));
+        System.out.println(convierteInfijaAPostfija(s5));  
+        System.out.println(evaluaOperacion(s5)); // = null
         
-        Calculadora c5 = new Calculadora ("5.7*10^-9");
+        String s6="5.7*10^-9";
         System.out.println("\nPrueba 6");
-        System.out.println(c5.noTieneErrores());
-        System.out.println(c5.divideOperacion());
-        System.out.println(c5.convierteInfijaAPostfija());  
-        System.out.println(c5.evaluaOperacion()); // =0.0000000059
+        System.out.println(noTieneErrores(s6));
+        System.out.println(divideOperacion(s6));
+        System.out.println(convierteInfijaAPostfija(s6));  
+        System.out.println(evaluaOperacion(s6)); // =0.0000000059
     }
 }
 
