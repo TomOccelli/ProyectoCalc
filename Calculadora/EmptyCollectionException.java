@@ -4,8 +4,14 @@
  */
 package Calculadora;
 
+
 /**
  *
+ * <pre>
+ * Excepción para una pila (también funciona para cualquier tipo de colección de datos).
+ * Para cuando la pila (o colección) no tiene elementos en esta.
+ * <pre>
+ * 
  * @author fernandobarbaperez
  */
 public class EmptyCollectionException extends RuntimeException {

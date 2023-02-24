@@ -6,6 +6,16 @@ package Calculadora;
 
 /**
  *
+ * <pre>
+ * La interfase para una pila genérica.
+ * Todas las pilas tienen que tener estos métods.
+ * Push: agrega dato en el último lugar
+ * Pop: elimina el último dato de la pila
+ * Peek: regresa el último dato de la pila
+ * isEmpty: regresa verdadero si la pila está vacío y falso si tiene al menos un dato
+ * multiPop: si la pila tiene "n" o más datos, los elimina
+ * <pre>
+ * 
  * @author fernandobarbaperez
  */
 public interface PilaADT <T> {
